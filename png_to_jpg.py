@@ -7,7 +7,7 @@ import random
 import os
 
 # 导入数据
-data_root_orig = tf.keras.utils.get_file(origin='C:/Users/76067/.keras/datasets/mona.zip', fname='mona')
+data_root_orig = tf.keras.utils.get_file(origin='C:/Users/76067/.keras/datasets/Download.zip', fname='Download')
 data_root = pathlib.Path(data_root_orig)
 # 解析
 all_image_paths = list(data_root.glob('*/*'))
