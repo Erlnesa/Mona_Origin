@@ -20,8 +20,8 @@ plt.rcParams['font.family'] = 'SimHei'
 # 读取模型
 model = tf.keras.models.load_model('saved_model/mona')
 # 限制图片显示尺寸
-img_height = 300
-img_width = 300
+img_height = 512
+img_width = 512
 
 
 # 验证模型
@@ -72,11 +72,11 @@ for test_paths_index in all_test_image_paths:
     if np.argmax(score) == 0:
         # plt.title("莫娜")
         # print('D:/Python_Project/Mona/Be/mona/' + target_img_path)
-        copyfile(test_paths_index, 'D:/Python_Project/Mona/Be/mona/' + target_img_path)
+        copyfile(test_paths_index, 'C:/Users/76067/Pictures/Be/mona/' + target_img_path)
     else:
         # plt.title("别的女人")
         # print('D:/Python_Project/Mona/Be/other/' + target_img_path)
-        copyfile(test_paths_index, 'D:/Python_Project/Mona/Be/other/' + target_img_path)
+        copyfile(test_paths_index, 'C:/Users/76067/Pictures/Be/other/' + target_img_path)
 
     '''
     plt.imshow(load_and_preprocess_image(test_paths_index))
