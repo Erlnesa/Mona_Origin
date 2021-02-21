@@ -19,20 +19,22 @@ from tensorflow.keras.models import Sequential
 
 # 导入训练数据集
 data_dir = tf.keras.utils.get_file(origin='C:/Users/76067/.keras/datasets/mona.zip', fname='mona')
+
 data_dir = pathlib.Path(data_dir)
 image_count = len(list(data_dir.glob('*/*.jpg')))
 print(image_count)
 # 格式化训练数据
-batch_size = 32
-img_height = 300
-img_width = 300
+batch_size = 16
+img_size = 512
+k_Dropout = 0.30
+
 # 拆分出训练数据集
 train_ds = tf.keras.preprocessing.image_dataset_from_directory(
     data_dir,
     validation_split=0.2,
     subset="training",
     seed=123,
-    image_size=(img_height, img_width),
+    image_size=(img_size, img_size),
     batch_size=batch_size)
 # 拆分出验证数据集
 val_ds = tf.keras.preprocessing.image_dataset_from_directory(
@@ -40,7 +42,7 @@ val_ds = tf.keras.preprocessing.image_dataset_from_directory(
     validation_split=0.2,
     subset="validation",
     seed=123,
-    image_size=(img_height, img_width),
+    image_size=(img_size, img_size),
     batch_size=batch_size)
 class_names = train_ds.class_names
 print(class_names)
@@ -67,13 +69,15 @@ print(np.min(first_image), np.max(first_image))
 data_augmentation = keras.Sequential(
     [
         layers.experimental.preprocessing.RandomFlip("horizontal",
-                                                     input_shape=(img_height,
-                                                                  img_width,
+                                                     input_shape=(img_size,
+                                                                  img_size,
                                                                   3)),
         layers.experimental.preprocessing.RandomRotation(0.1),
         layers.experimental.preprocessing.RandomZoom(0.1),
     ]
 )
+
+# 最后一层池化后，网络输出为一维向量
 # 创建模型
 # 该模型由三个卷积块组成，每个卷积块中都有一个最大池层。有一个完全连接的层，上面有128个单元。
 # 可以通过relu激活功能激活。尚未针对高精度调整此模型，本教程的目的是展示一种标准方法。
@@ -82,15 +86,20 @@ num_classes = 2
 model = Sequential([
     data_augmentation,
     layers.experimental.preprocessing.Rescaling(1. / 255),
-    layers.Conv2D(16, 3, padding='same', activation='relu'),
+    layers.Conv2D(3, 3, activation='relu'),
     layers.MaxPooling2D(),
-    layers.Conv2D(32, 3, padding='same', activation='relu'),
+    layers.Conv2D(64, 3, activation='relu'),
     layers.MaxPooling2D(),
-    layers.Conv2D(64, 3, padding='same', activation='relu'),
+    layers.Conv2D(128, 3, activation='relu'),
     layers.MaxPooling2D(),
-    layers.Dropout(0.2),
+    layers.Conv2D(512, 3, activation='relu'),
+    layers.MaxPooling2D(),
+    layers.Conv2D(1024, 3, activation='relu'),
+    layers.MaxPooling2D(),
+
+    layers.Dropout(k_Dropout),
     layers.Flatten(),
-    layers.Dense(128, activation='relu'),
+    layers.Dense(512, activation='relu'),
     layers.Dense(num_classes)
 ])
 # 对于本教程，选择optimizers.Adam优化器和losses.SparseCategoricalCrossentropy损失函数。
